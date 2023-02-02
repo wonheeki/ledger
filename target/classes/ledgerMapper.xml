@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ki.lg01.ledger.LedgerMapper">
+
+	<insert id="writeLedger"
+		parameterType="com.ki.lg01.ledger.Ledger">
+		insert into financial_ledger values(fl_no_seq.nextval,
+		#{fl_date},#{fl_category},#{fl_expense},#{fl_income},#{fl_detail})
+	</insert>
+
+	<select id="getLedger" resultType="com.ki.lg01.ledger.Ledger">
+		SELECT
+		ROW_NUMBER() OVER (ORDER
+		BY A.fl_date) AS rn,
+		A.fl_no,
+		A.fl_date,
+		A.fl_category,
+		A.fl_expense,
+		A.fl_income,
+		A.fl_detail
+		FROM
+		financial_ledger A
+	</select>
+
+
+	<select id="monthExpense"
+		parameterType="com.ki.lg01.ledger.Monthly"
+		resultType="java.lang.Integer">
+		select sum(fl_expense) from
+		financial_ledger
+		where fl_date
+		between (select
+		TO_CHAR(trunc(sysdate,'MM'),'YYYY-MM-DD') from dual
+		)
+		and (SELECT TO_CHAR(LAST_DAY(SYSDATE),'YYYY-MM-DD') MONTH_LAST_DAY
+		FROM DUAL)
+	</select>
+
+	<select id="monthIncome"
+		parameterType="com.ki.lg01.ledger.Monthly"
+		resultType="java.lang.Integer">
+		select sum(fl_income) from
+		financial_ledger
+		where fl_date
+		between (select TO_CHAR(trunc(sysdate,'MM'),'YYYY-MM-DD') from dual
+		) and (SELECT TO_CHAR(LAST_DAY(SYSDATE),'YYYY-MM-DD') MONTH_LAST_DAY
+		FROM DUAL)
+	</select>
+	
+	<select id="detailLedger"
+		parameterType="com.ki.lg01.ledger.Ledger"
+		resultType="com.ki.lg01.ledger.Ledger">
+		select * from
+		financial_ledger where fl_no = #{fl_no}
+	</select>
+	
+	<update id ="updateDetail" parameterType="com.ki.lg01.ledger.Ledger">
+		update financial_ledger set fl_no=#{fl_no}, fl_date=#{fl_date}, fl_category=#{fl_category},
+		fl_expense=#{fl_expense}, fl_income=#{fl_income}, fl_detail=#{fl_detail}
+		where fl_no=#{fl_no}
+	</update>
+	
+	<delete id ="deleteDetail" parameterType="com.ki.lg01.ledger.Ledger">
+		delete from financial_ledger where fl_no=#{fl_no}
+	</delete>
+	
+	<select id="getAllLedger" resultType="com.ki.lg01.ledger.Ledger">
+		select * from financial_ledger order by fl_date
+	</select>
+</mapper>
