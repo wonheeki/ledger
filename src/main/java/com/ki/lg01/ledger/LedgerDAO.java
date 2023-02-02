@@ -69,7 +69,8 @@ public class LedgerDAO {
 		req.setAttribute("monthExpense", m.getExpense());
 		req.setAttribute("monthIncome", m.getIncome());
 		req.setAttribute("total", m.getTotal());
-
+		// 이 달의 수입 지출이 0인 상태로 프로그램 실행하면 NullpointerError 발생
+		// db에서 수입 지출 임시로 넣어주고 실행하기
 	}
 
 	// 가계부 상세보기
